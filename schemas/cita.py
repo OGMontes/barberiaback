@@ -4,23 +4,26 @@ from typing import Optional
 
 class CitaCreate(BaseModel):
     NombreCliente: str
-    Correo: Optional[str]
+    Correo: str
     Telefono: str
     FechaCita: datetime
     ServicioId: int
     BarberoId: int
-    Comentarios: Optional[str] = ""
-    
+    Comentarios: Optional[str] = None
+
+class CitaUpdate(BaseModel):
+    NombreCliente: Optional[str]
+    Correo: Optional[str]
+    Telefono: Optional[str]
+    FechaCita: Optional[datetime]
+    ServicioId: Optional[int]
+    BarberoId: Optional[int]
+    Comentarios: Optional[str]
+    Estado: Optional[str]
+
 class CitaResponse(CitaCreate):
     CitaId: int
     Estado: str
-    FechaSolicitud: datetime
 
     class Config:
-        from_attributes = True  # reemplaza orm_mode
-
-class CitaUpdate(BaseModel):
-    Estado: Optional[str] = None
-    FechaCita: Optional[datetime] = None
-    BarberoId: Optional[int] = None
-    Comentarios: Optional[str] = None
+        orm_mode = True

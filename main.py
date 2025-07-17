@@ -1,35 +1,52 @@
+# main.py
 from fastapi import FastAPI
-from routers import barberos, servicios, citas, barbero_servicio
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+from database import get_db, Base, engine
+from routers import barberos, servicios, citas, barbero_servicio, fotos_servicio
+
+# Asegurarse de que las tablas están creadas
+Base.metadata.create_all(bind=engine)
+
 app = FastAPI(root_path="/api-barber")
 
-
-
-
-# 💻 Luego aplicas el middleware CORS
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:4200",  # para desarrollo local
+        "http://localhost:4200",
         "http://localhost:5096",
-        "http://0.0.0.0:5096",
-        "https://portafolio.tecnocoremexico.com",        # producción frontend
-        "https://portafolio.tecnocoremexico.com:5096",   # producción backend si lo llamas directamente
-        "http://74.208.14.192:8443"  # IP con puerto por si pruebas directo
+        "https://portafolio.tecnocoremexico.com",
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# Montar estáticos
+app.mount(
+    "/barberos-img",
+    StaticFiles(directory="static/barberos"),
+    name="barberos-img",
+)
+app.mount(
+    "/cortes-img",
+    StaticFiles(directory="static/cortes"),
+    name="cortes-img",
+)
+app.mount(
+    "/fotos-servicio",
+    StaticFiles(directory="static/fotos-servicio"),
+    name="fotos-servicio",
+)
 
-
-
-# 📦 Incluye tus routers
+# Routers
 app.include_router(barberos.router)
 app.include_router(servicios.router)
 app.include_router(citas.router)
 app.include_router(barbero_servicio.router)
-app.mount("/barberos-img", StaticFiles(directory="static/barberos"), name="barberos-img")
+app.include_router(
+    fotos_servicio.router,
+    prefix="/api-fotos-servicio",
+)
